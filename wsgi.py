@@ -12,10 +12,11 @@
 
 
 from wsgiref.simple_server import make_server
-from app import spichi
+from spichi import create_app
 
 
 if __name__ == '__main__':
-    httpd = make_server(host='', port=8848, app=spichi)
+    app = create_app()
+    httpd = make_server(host='', port=8848, app=app)
     # a method of BaseServer, which's in /lib/python2.7/SocketServer.py
     httpd.serve_forever()
