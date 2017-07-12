@@ -10,15 +10,34 @@
 # =============================================================================
 '''
 from werkzeug.wrappers import Request, Response
+from werkzeug.routing import Map, Rule
+from werkzeug.exceptions import HTTPException
 # from utils import get_path_info
 
 
 class Spichi(object):
+
+    url_map = Map([
+        Rule('/', endpoint='home'),
+        Rule('/test', endpoint='test'),
+        ])
+
     def __init__(self, *args, **kwargs):
         pass
 
-    def dispatch_response(self, request):
+    def home(self, request, *args, **kwargs):
         return Response('hello')
+
+    def test(self, request, *args, **kwargs):
+        return Response('test')
+
+    def dispatch_response(self, request):
+        adapter = self.url_map.bind_to_environ(request.environ)
+        try:
+            endpoints, values = adapter.match()
+            return getattr(self, endpoints)(request, **values)
+        except HTTPException as e:
+            return e
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
