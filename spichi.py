@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 '''
 # =============================================================================
-#      FileName: app.py
+#      FileName: spichi.py
 #          Desc: 
 #        Author: ifkite
 #         Email: holahello@163.com
 #      HomePage: http://github.com/ifkite
-#    LastChange: 2017-06-24 11:34:24
+#    LastChange: 2017-07-14 08:42:53
 # =============================================================================
 '''
 from werkzeug.wrappers import Request, Response
@@ -17,25 +17,26 @@ from werkzeug.exceptions import HTTPException
 
 class Spichi(object):
 
-    url_map = Map([
-        Rule('/', endpoint='home'),
-        Rule('/test', endpoint='test'),
-        ])
+    url_map = Map([])
+    view_func = {}
 
     def __init__(self, *args, **kwargs):
         pass
 
-    def home(self, request, *args, **kwargs):
-        return Response('hello')
+    def route(self, rule, endpoint):
+        def decorator(func):
+            self.add_url(rule, endpoint, func)
+        return decorator
 
-    def test(self, request, *args, **kwargs):
-        return Response('test')
+    def add_url(self, rule, endpoint, func):
+        self.url_map.add(Rule(rule, endpoint=endpoint))
+        self.view_func.update({endpoint: func})
 
     def dispatch_response(self, request):
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             endpoints, values = adapter.match()
-            return getattr(self, endpoints)(request, **values)
+            return Response(self.view_func[endpoints](request, **values))
         except HTTPException as e:
             return e
 
