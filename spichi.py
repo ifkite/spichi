@@ -28,6 +28,13 @@ class Spichi(object):
             self.add_url(rule, endpoint, func)
         return decorator
 
+    def route_class(self, rule, endpoint, *cls_args, **cls_kwargs):
+        def decorator(cls):
+            obj = cls(*cls_args, **cls_kwargs)
+            self.add_url(rule, endpoint, obj)
+            return cls
+        return decorator
+
     def add_url(self, rule, endpoint, func):
         self.url_map.add(Rule(rule, endpoint=endpoint))
         self.view_func.update({endpoint: func})
@@ -47,7 +54,6 @@ class Spichi(object):
 
     def __call__(self, environ, start_response):
         return self.wsgi_app(environ, start_response)
-
 
 def create_app(*args, **kwargs):
     return Spichi(*args, **kwargs)
