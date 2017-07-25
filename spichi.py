@@ -12,6 +12,7 @@
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
 from werkzeug.exceptions import HTTPException
+from session import SessionHandler
 # from utils import get_path_info
 
 
@@ -19,6 +20,8 @@ class Spichi(object):
 
     url_map = Map([])
     view_func = {}
+    pre_handler = [SessionHandler]
+    post_hander = [SessionHandler]
 
     def __init__(self, *args, **kwargs):
         pass
@@ -39,6 +42,14 @@ class Spichi(object):
         self.url_map.add(Rule(rule, endpoint=endpoint))
         self.view_func.update({endpoint: func})
 
+    def pre_handle(self, request):
+        for handler in self.pre_handler:
+            handler().pre_process(request)
+
+    def post_handle(self, request, response):
+        for handler in self.post_hander:
+            handler().post_process(request, response)
+
     def dispatch_response(self, request):
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
@@ -49,7 +60,9 @@ class Spichi(object):
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
+        self.pre_handle(request)
         response = self.dispatch_response(request)
+        self.post_handle(request, response)
         return response(environ, start_response)
 
     def __call__(self, environ, start_response):
