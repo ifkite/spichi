@@ -13,7 +13,6 @@ from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
 from werkzeug.exceptions import HTTPException
 from session import SessionHandler
-# from utils import get_path_info
 
 
 class Spichi(object):

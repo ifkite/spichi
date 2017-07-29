@@ -10,6 +10,9 @@
 #    LastChange: 2017-06-27 07:22:02
 # =============================================================================
 '''
+from hashlib import sha1
+from random import random
+from time import time
 
 
 def get_path_info(environ):
@@ -19,3 +22,20 @@ def get_path_info(environ):
         return path_info[1:]
     else:
         return path_info
+
+
+def time_text():
+    return str(time()).encode('ascii')
+
+
+def random_text():
+    # PY2
+    return unicode(random()).encode('ascii')
+
+
+def generate_key(salt=None):
+    return sha1(b''.join([
+        salt,
+        time_text(),
+        random_text(),
+        ])).hexdigest()
