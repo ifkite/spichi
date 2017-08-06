@@ -65,10 +65,9 @@ def wait_child(pid):
         wpid, sts = os.waitpid(pid, 0)
         if os.WIFSTOPPED(sts):
             continue
-            # if receive keybord interuption or kill signal
+        # if receive keybord interuption or kill signal
         elif os.WIFSIGNALED(sts):
             return -os.WTERMSIG(sts)
-            # os.kill(os.getpid(), exit_code)
         elif os.WIFEXITED(sts):
             return os.WEXITSTATUS(sts)
         else:
@@ -77,7 +76,7 @@ def wait_child(pid):
 
 def handle_exit(exit_code):
     if exit_code < 0:
-        os.kill(os.getpid(), exit_code)
+        os.kill(os.getpid(), -exit_code)
     elif exit_code == FILE_CHANGED:
         pass
     else:
