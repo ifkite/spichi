@@ -11,11 +11,10 @@
 '''
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
-from werkzeug.exceptions import HTTPException
 import json
 
 from session import SessionHandler
-from excepts import SpichiExcept
+from excepts import ExceptHandler, handle_except
 
 
 class Spichi(object):
@@ -53,25 +52,16 @@ class Spichi(object):
             handler().post_process(request, response)
 
     def response_wrapper(self, endpoints, request, values):
-        results = []
-        error_code = 200
-        error_msg = ''
-        try:
-            results = json.dumps(self.view_func[endpoints](request, **values))
-            return json.dumps({'error_code': error_code, 'error_msg': error_msg, 'results': results})
-        except SpichiExcept as e:
-            error_code = e.error_code
-            error_msg = e.error_msg
-            return json.dumps({'error_code': error_code, 'error_msg': error_msg, 'results': results})
-
+        results = self.view_func[endpoints](request, **values) or []
+        return json.dumps({'error_code': 200, 'error_msg': '', 'error_detail': '', 'results': results})
 
     def dispatch_response(self, request):
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             endpoints, values = adapter.match()
-            return Response(self.response_wrapper(endpoints=endpoints, request=request, values=values))
-        except HTTPException as e:
-            return e
+            return Response(self.response_wrapper(endpoints=endpoints, request=request, values=values), mimetype='application/json')
+        except Exception as e:
+            return handle_except(e, ExceptHandler)
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
