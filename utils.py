@@ -39,3 +39,19 @@ def generate_key(salt=None):
         time_text(),
         random_text(),
         ])).hexdigest()
+
+
+def redirect(location, status=302):
+    """
+    which is seldom used in api server
+    """
+    from werkzeug.wrappers import Response
+    from werkzeug.urls import iri_to_uri
+    location = iri_to_uri(location, safe_conversion=True)
+    return Response(
+            "<!DOCTYPE html>\
+                <html>\
+                    <h1>Redirecting...</h1>\
+                    <a href='{0}'>touch this to make manually redirection</a>\
+                </html>"
+            .format(location), status=status, headers={'Location': location})

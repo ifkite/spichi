@@ -53,13 +53,16 @@ class Spichi(object):
 
     def response_wrapper(self, endpoints, request, values):
         results = self.view_func[endpoints](request, **values) or []
-        return json.dumps({'error_code': 200, 'error_msg': '', 'error_detail': '', 'results': results})
+        if isinstance(results, Response):
+            return results
+        return Response(json.dumps({'error_code': 200, 'error_msg': '', 'error_detail': '', 'results': results}), mimetype='application/json')
+
 
     def dispatch_response(self, request):
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             endpoints, values = adapter.match()
-            return Response(self.response_wrapper(endpoints=endpoints, request=request, values=values), mimetype='application/json')
+            return self.response_wrapper(endpoints=endpoints, request=request, values=values)
         except Exception as e:
             return handle_except(e, ExceptHandler)
 
