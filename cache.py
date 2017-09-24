@@ -58,3 +58,12 @@ class RedisCache(BaseCache):
     def delete(self, cache_key):
         _cache_key = self.make_key(cache_key)
         return self._cache.delete(_cache_key)
+
+
+class CacheFactory(object):
+    cache_backend = {'redis': RedisCache}
+    def __init__(self, cache_name):
+        self.backend = self.cache_backend.get(cache_name, RedisCache)
+
+    def build(self, *args, **kwargs):
+        return self.backend(*args, **kwargs)
