@@ -39,6 +39,19 @@ class BaseCache(object):
     def delete(self, cache_key):
         pass
 
+    def cache(self, expires, key):
+        def decorator(func):
+            def wrapper(*args, **kwargs):
+                cache_val = self.get(key)
+                if cache_val:
+                    return cache_val
+                result = func(*args, **kwargs)
+                if isinstance(result, basestring):
+                    self.set(key, result, expires)
+                return result
+            return wrapper
+        return decorator
+
 
 class RedisCache(BaseCache):
     conf = {'host': '127.0.0.1', 'port': 6379, 'db': 0}
