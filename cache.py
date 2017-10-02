@@ -78,5 +78,8 @@ class CacheFactory(object):
     def __init__(self, cache_name):
         self.backend = self.cache_backend.get(cache_name, RedisCache)
 
+    def get_backend(self):
+        return self.backend
+
     def build(self, *args, **kwargs):
         return self.backend(*args, **kwargs)

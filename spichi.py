@@ -14,6 +14,7 @@ from werkzeug.routing import Map, Rule
 import json
 
 from session import SessionHandler
+from utils import UploadHanderFactory
 from excepts import ExceptHandler, handle_except
 
 
@@ -23,6 +24,8 @@ class Spichi(object):
     view_func = {}
     pre_handler = [SessionHandler]
     post_hander = [SessionHandler]
+
+    UploadHandlerClass = UploadHanderFactory('local').get_backend()
 
     def __init__(self, *args, **kwargs):
         pass
