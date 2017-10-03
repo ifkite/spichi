@@ -15,6 +15,7 @@ import json
 
 from session import SessionHandler
 from utils import UploadHanderFactory
+from database import DataBasefactory
 from excepts import ExceptHandler, handle_except
 
 
@@ -25,6 +26,8 @@ class Spichi(object):
     pre_handler = [SessionHandler]
     post_hander = [SessionHandler]
 
+    # sample
+    databases = {'mysql': DataBasefactory('sql').build('mysql+mysqldb://root:@localhost/ydop')}
     UploadHandlerClass = UploadHanderFactory('local').get_backend()
 
     def __init__(self, *args, **kwargs):
