@@ -29,11 +29,17 @@ class Spichi(object):
     pre_handler = [SessionHandler]
     post_hander = [SessionHandler]
 
+    #TODO
+    # set session, set databases and set uploader should be executed in spichi class
+
     def set_databases(self):
         self.databases = {
                 db_name: DataBasefactory(db_value['DB_TYPE']).build(db_value['DB_CONF']) 
                 for db_name, db_value in self.conf['DATABASES'].iteritems()
                 }
+
+    def set_session(self):
+        SessionHandler.set_store(self.conf['SESSION_STORE'])
 
     def set_upload_handler_class(self):
         self.UploadHandlerClass = UploadHanderFactory(self.conf['UPLOAD_CLASS']).get_backend()
@@ -53,6 +59,7 @@ class Spichi(object):
     def __init__(self, *args, **kwargs):
         self.set_config(*args, **kwargs)
         self.set_databases()
+        self.set_session()
         self.set_upload_handler_class()
 
     def route(self, rule, endpoint):

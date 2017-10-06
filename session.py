@@ -117,7 +117,10 @@ thread_local = local()
 class SessionHandler(object):
     _config = {'max_age': None, 'expires': None, 'path':'/', 'domain': None, 'secure': False, 'httponly': True}
     session_key = '_sessionid'
-    SessionBase.set_store('redis')
+
+    @staticmethod
+    def set_store(name):
+        SessionBase.set_store(name)
 
     def pre_process(self, request):
         sessionid = request.cookies.get(self.session_key)
