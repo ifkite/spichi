@@ -2,7 +2,7 @@
 '''
 # =============================================================================
 #      FileName: factory.py
-#          Desc: a factory which is used to generate a factory
+#          Desc: a general factory which is used to generate other factories
 #        Author: ifkite
 #         Email: holahello@163.com
 #      HomePage: http://github.com/ifkite
@@ -19,13 +19,10 @@ class GeneralFactory(object):
 
         class Factory(object):
             backend_dict = {}
-
             def __init__(self, name):
                 self.backend = self.backend_dict.get(name)
-
             def get_backend(self):
                 return self.backend
-
             def build(self, *args, **kwargs):
                 return self.backend(*args, **kwargs)
 

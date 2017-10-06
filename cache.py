@@ -40,6 +40,27 @@ class BaseCache(object):
     def delete(self, cache_key):
         pass
 
+
+    # sample
+    # app = create_app()
+    # cache = app.caches['redis'].cache
+    #
+    # @app.route('/', 'home')
+    # @cache(10, 'home_result')
+    # def home(request):
+    #     return 'welcome to my home'
+    #
+    # @app.route_class('/hello', 'hello')
+    # class Hello(View):
+    #
+    # @cache(10, 'hello')
+    # def get(self, request):
+    #     return 'hello world'
+    #
+    # NOTICE
+    # cache function ONLY take effect when
+    # the decorated function returns a string value
+
     def cache(self, expires, key):
         def decorator(func):
             def wrapper(*args, **kwargs):

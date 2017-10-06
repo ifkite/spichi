@@ -103,7 +103,7 @@ class SessionBase(object):
 # from session import session
 # get session: session['count']
 # set session: session['name'] = 'ifkite'
-# save session: sesion.save()
+# save session: sesison.save()
 
 class Session(dict):
     thread_local = local()

@@ -25,6 +25,10 @@ class ResourceClosedError(SQLRescoureClosedError):
     '''
 
 
+# sample
+# app = create_app()
+# app.databases['mysql'].execute('select * from user').fetchone()
+
 @six.add_metaclass(abc.ABCMeta)
 class BaseDataHandler(object):
 

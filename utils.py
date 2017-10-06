@@ -59,6 +59,14 @@ def redirect(location, status=302):
             .format(location), status=status, headers={'Location': location})
 
 
+# sample
+# app = create_app()
+# @app.route('/', 'home')
+# def home(request):
+#   app.UploadHandlerClass(request).save()
+#   OR give some specific filenames
+#   app.UploadHandlerClass(request, ['image']).save()
+
 class BaseUploadHandler(object):
 
     def __init__(self, request, require_names=None):
