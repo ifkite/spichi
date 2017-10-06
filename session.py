@@ -75,10 +75,24 @@ class RedisSessionStore(SessionStore):
         return generate_key(salt='')
 
 
+class SessionStoreFactory(object):
+    session_backend = {'redis': RedisSessionStore}
+    def __init__(self, name):
+        self.backend = self.session_backend.get(name)
+
+    def get_backend(self):
+        return self.backend
+
+    def build(self, *args, **kwargs):
+        return self.backend(*args, **kwargs)
+
+
 class SessionBase(object):
     #TODO: SessionStore的传参
-    #TODO: 可配置不同的SessionStore
-    store = RedisSessionStore()
+
+    @classmethod
+    def set_store(cls, store_name):
+        cls.store = SessionStoreFactory(store_name).build()
 
     def __init__(self, sessionid):
         self.sessionid, self.data, self.expires = self.store.get_or_create_session(sessionid)
@@ -103,6 +117,7 @@ thread_local = local()
 class SessionHandler(object):
     _config = {'max_age': None, 'expires': None, 'path':'/', 'domain': None, 'secure': False, 'httponly': True}
     session_key = '_sessionid'
+    SessionBase.set_store('redis')
 
     def pre_process(self, request):
         sessionid = request.cookies.get(self.session_key)
