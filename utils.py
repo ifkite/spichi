@@ -14,6 +14,7 @@ from hashlib import sha1
 from random import random
 from time import time
 from os import path
+from factory import GeneralFactory
 
 
 def get_path_info(environ):
@@ -113,14 +114,5 @@ class LocalUploadHandler(BaseUploadHandler):
         return [self._save_handler(f) for f in self.uploaded_fnames]
 
 
-class UploadHanderFactory(object):
-    upload_handler_backend = {'local': LocalUploadHandler}
-
-    def __init__(self, upload_hander_name):
-        self.backend = self.upload_handler_backend.get(upload_hander_name)
-
-    def get_backend(self):
-        return self.backend
-
-    def build(self, *args, **kwargs):
-        return self.backend(*args, **kwargs)
+UploadHanderFactory = GeneralFactory.gen()
+UploadHanderFactory.backend_dict = {'local': LocalUploadHandler}

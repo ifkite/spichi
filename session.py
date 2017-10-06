@@ -18,7 +18,7 @@ from threading import local
 import redis
 from utils import generate_key
 import json
-
+from factory import GeneralFactory
 
 
 # TODO: 不同的backend, 比如redis, memory
@@ -75,16 +75,8 @@ class RedisSessionStore(SessionStore):
         return generate_key(salt='')
 
 
-class SessionStoreFactory(object):
-    session_backend = {'redis': RedisSessionStore}
-    def __init__(self, name):
-        self.backend = self.session_backend.get(name)
-
-    def get_backend(self):
-        return self.backend
-
-    def build(self, *args, **kwargs):
-        return self.backend(*args, **kwargs)
+SessionStoreFactory = GeneralFactory.gen()
+SessionStoreFactory.backend_dict = {'redis': RedisSessionStore}
 
 
 class SessionBase(object):

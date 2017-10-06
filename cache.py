@@ -13,6 +13,7 @@
 
 
 import redis
+from factory import GeneralFactory
 
 
 class BaseCache(object):
@@ -73,13 +74,5 @@ class RedisCache(BaseCache):
         return self._cache.delete(_cache_key)
 
 
-class CacheFactory(object):
-    cache_backend = {'redis': RedisCache}
-    def __init__(self, cache_name):
-        self.backend = self.cache_backend.get(cache_name, RedisCache)
-
-    def get_backend(self):
-        return self.backend
-
-    def build(self, *args, **kwargs):
-        return self.backend(*args, **kwargs)
+CacheFactory = GeneralFactory.gen()
+CacheFactory.backend_dict = {'redis': RedisCache}

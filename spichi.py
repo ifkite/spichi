@@ -19,7 +19,7 @@ import json
 from session import SessionHandler
 from cache import CacheFactory
 from utils import UploadHanderFactory
-from database import DataBasefactory
+from database import DataBaseFactory
 from excepts import ExceptHandler, handle_except
 
 
@@ -35,7 +35,7 @@ class Spichi(object):
 
     def set_databases(self):
         self.databases = {
-                db_name: DataBasefactory(db_value['db_type']).build(db_value['db_conf'])
+                db_name: DataBaseFactory(db_value['db_type']).build(db_value['db_conf'])
                 for db_name, db_value in self.conf['DATABASES'].iteritems()
                 }
 

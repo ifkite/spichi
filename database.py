@@ -17,6 +17,7 @@ import abc
 import types
 from sqlalchemy import create_engine as sql_create_engine
 from sqlalchemy.exc import ResourceClosedError as SQLRescoureClosedError
+from factory import GeneralFactory
 
 
 class ResourceClosedError(SQLRescoureClosedError):
@@ -74,14 +75,5 @@ class SQLDataHandler(BaseDataHandler):
         return wrap
 
 
-class DataBasefactory(object):
-    data_backend = {'sql': SQLDataHandler}
-
-    def __init__(self, name):
-        self.backend = self.data_backend.get(name)
-
-    def get_backend(self):
-        return self.backend
-
-    def build(self, *args, **kwargs):
-        return self.backend(*args, **kwargs)
+DataBaseFactory = GeneralFactory.gen()
+DataBaseFactory.backend_dict = {'sql': SQLDataHandler}
