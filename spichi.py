@@ -17,6 +17,7 @@ import re
 import json
 
 from session import SessionHandler
+from cache import CacheFactory
 from utils import UploadHanderFactory
 from database import DataBasefactory
 from excepts import ExceptHandler, handle_except
@@ -34,12 +35,18 @@ class Spichi(object):
 
     def set_databases(self):
         self.databases = {
-                db_name: DataBasefactory(db_value['DB_TYPE']).build(db_value['DB_CONF']) 
+                db_name: DataBasefactory(db_value['db_type']).build(db_value['db_conf'])
                 for db_name, db_value in self.conf['DATABASES'].iteritems()
                 }
 
     def set_session(self):
         SessionHandler.set_store(self.conf['SESSION_STORE'])
+
+    def set_cache(self):
+        self.caches = {
+                cache_name: CacheFactory(cache_name).build(**cache_value)
+                for cache_name, cache_value in self.conf['CACHE'].iteritems()
+                }
 
     def set_upload_handler_class(self):
         self.UploadHandlerClass = UploadHanderFactory(self.conf['UPLOAD_CLASS']).get_backend()
@@ -60,6 +67,7 @@ class Spichi(object):
         self.set_config(*args, **kwargs)
         self.set_databases()
         self.set_session()
+        self.set_cache()
         self.set_upload_handler_class()
 
     def route(self, rule, endpoint):
