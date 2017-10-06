@@ -11,6 +11,9 @@
 '''
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
+from config import Config
+import os
+import re
 import json
 
 from session import SessionHandler
@@ -26,12 +29,31 @@ class Spichi(object):
     pre_handler = [SessionHandler]
     post_hander = [SessionHandler]
 
-    # sample
-    databases = {'mysql': DataBasefactory('sql').build('mysql+mysqldb://root:@localhost/ydop')}
-    UploadHandlerClass = UploadHanderFactory('local').get_backend()
+    def set_databases(self):
+        self.databases = {
+                db_name: DataBasefactory(db_value['DB_TYPE']).build(db_value['DB_CONF']) 
+                for db_name, db_value in self.conf['DATABASES'].iteritems()
+                }
+
+    def set_upload_handler_class(self):
+        self.UploadHandlerClass = UploadHanderFactory(self.conf['UPLOAD_CLASS']).get_backend()
+
+    def set_config(self, *args, **kwargs):
+        default_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        default_path = os.path.join(default_dir, 'spichi')
+        conf_filepath = kwargs.get('path', default_path)
+        conf_filename = kwargs.get('conf', 'develop.json')
+        self.conf = Config(conf_filepath)
+
+        if re.search('\.py', conf_filename):
+            self.conf.from_pyfile(conf_filename)
+        else:
+            self.conf.from_json(conf_filename)
 
     def __init__(self, *args, **kwargs):
-        pass
+        self.set_config(*args, **kwargs)
+        self.set_databases()
+        self.set_upload_handler_class()
 
     def route(self, rule, endpoint):
         def decorator(func):
