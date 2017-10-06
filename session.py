@@ -99,11 +99,27 @@ class SessionBase(object):
         self.store.save_session(self.sessionid, self.data, self.expires)
 
 
-# TODO: 使用起来更方便, 当前使用方式
-# from session import thread_local
-# thread_local.session.data['hello'] = 'world'
-# thread_local.session.data.get('hello')
-thread_local = local()
+# sample
+# from session import session
+# get session: session['count']
+# set session: session['name'] = 'ifkite'
+# save session: sesion.save()
+
+class Session(dict):
+    thread_local = local()
+
+    def __getitem__(self, name):
+        return Session.thread_local.session.data.get(name)
+
+    def __setitem__(self, name, val):
+        Session.thread_local.session.data[name] = val
+
+    def save(self):
+        Session.thread_local.session.save()
+
+
+session = Session()
+thread_local = Session.thread_local
 
 
 class SessionHandler(object):
