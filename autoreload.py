@@ -63,7 +63,13 @@ def check_file_changed():
 
 def wait_child(pid):
     while True:
-        wpid, sts = os.waitpid(pid, 0)
+        try:
+            # wait for child process
+            wpid, sts = os.waitpid(pid, 0)
+        except KeyboardInterrupt:
+            # handle exceptions when parent is waiting
+            handle_parent_exit(pid)
+
         if os.WIFSTOPPED(sts):
             continue
         # if receive keybord interuption or kill signal
@@ -84,7 +90,7 @@ def handle_child_exit(exit_code):
         sys.exit(exit_code)
 
 
-def handle_parent_except(pid):
+def handle_parent_exit(pid):
     os.kill(pid, signal.SIGKILL)
     sys.exit()
 
@@ -104,12 +110,8 @@ def restart_reloader():
 
         # parent process
         else:
-            try:
-                exit_code = wait_child(pid)
-                handle_child_exit(exit_code)
-            # exceptions occured in parent process
-            except KeyboardInterrupt:
-                handle_parent_except(pid)
+            exit_code = wait_child(pid)
+            handle_child_exit(exit_code)
 
 
 def autoreload(func, *args, **kwargs):
