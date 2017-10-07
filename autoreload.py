@@ -39,10 +39,22 @@ def gen_filenames():
     return clean_filenames([module.__file__ for module in modules if hasattr(module, '__file__')])
 
 
+def walk_filenames():
+    filelist = []
+    start_dir = os.path.dirname(os.path.abspath(__file__))
+    for dir_path, dirs, filenames in os.walk(start_dir):
+        filelist.extend([
+            os.path.join(dir_path, filename)
+                for filename in filenames
+                if filename.endswith('py') or filename.endswith('json')
+                ])
+    return filelist
+
+
 _mtimes = {}
 FILE_CHANGED = 3
 def is_file_changed():
-    for filename in gen_filenames():
+    for filename in walk_filenames():
         stat = os.stat(filename)
         mtime = stat.st_mtime
         if filename not in _mtimes:
@@ -56,9 +68,9 @@ def is_file_changed():
 
 def check_file_changed():
     while True:
+        time.sleep(1)
         if is_file_changed():
-            sys.exit(FILE_CHANGED)
-            time.sleep(1)
+            os.kill(os.getpid(), signal.SIGKILL)
 
 
 def wait_child(pid):
@@ -70,24 +82,25 @@ def wait_child(pid):
             # handle exceptions when parent is waiting
             handle_parent_exit(pid)
 
+        # if child process stopped
         if os.WIFSTOPPED(sts):
             continue
         # if receive keybord interuption or kill signal
         elif os.WIFSIGNALED(sts):
-            return -os.WTERMSIG(sts)
+            return sts
+        # seems not work
         elif os.WIFEXITED(sts):
-            return os.WEXITSTATUS(sts)
+            return sts
         else:
             raise "Not stopped, signaled or exited???"
 
 
-def handle_child_exit(exit_code):
-    if exit_code < 0:
-        os.kill(os.getpid(), -exit_code)
-    elif exit_code == FILE_CHANGED:
+def handle_child_exit(signal_code):
+    # parent will fork a new child
+    if signal_code == signal.SIGKILL:
         pass
     else:
-        sys.exit(exit_code)
+        sys.exit()
 
 
 def handle_parent_exit(pid):
@@ -110,9 +123,17 @@ def restart_reloader():
 
         # parent process
         else:
-            exit_code = wait_child(pid)
-            handle_child_exit(exit_code)
+            signal_code = wait_child(pid)
+            handle_child_exit(signal_code)
 
+
+# sample
+# from wsgiref.simple_server import make_server
+# def run():
+#     httpd = make_server(host='', port=8848, app=app)
+#     httpd.serve_forever()
+# if __name__ == '__main__':
+#     autoreload(run)
 
 def autoreload(func, *args, **kwargs):
     # child process

@@ -52,8 +52,7 @@ class Spichi(object):
         self.UploadHandlerClass = UploadHanderFactory(self.conf['UPLOAD_CLASS']).get_backend()
 
     def set_config(self, *args, **kwargs):
-        default_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        default_path = os.path.join(default_dir, 'spichi')
+        default_path = os.path.dirname(os.path.abspath(__file__))
         conf_filepath = kwargs.get('path', default_path)
         conf_filename = kwargs.get('conf', 'develop.json')
         self.conf = Config(conf_filepath)
