@@ -14,6 +14,7 @@
 
 import sys
 import os
+import signal
 import threading
 import time
 
@@ -53,7 +54,7 @@ def is_file_changed():
     return False
 
 
-def check_file_changd():
+def check_file_changed():
     while True:
         if is_file_changed():
             sys.exit(FILE_CHANGED)
@@ -74,13 +75,18 @@ def wait_child(pid):
             raise "Not stopped, signaled or exited???"
 
 
-def handle_exit(exit_code):
+def handle_child_exit(exit_code):
     if exit_code < 0:
         os.kill(os.getpid(), -exit_code)
     elif exit_code == FILE_CHANGED:
         pass
     else:
         sys.exit(exit_code)
+
+
+def handle_parent_except(pid):
+    os.kill(pid, signal.SIGKILL)
+    sys.exit()
 
 
 def restart_reloader():
@@ -98,8 +104,12 @@ def restart_reloader():
 
         # parent process
         else:
-            exit_code = wait_child(pid)
-            handle_exit(exit_code)
+            try:
+                exit_code = wait_child(pid)
+                handle_child_exit(exit_code)
+            # exceptions occured in parent process
+            except KeyboardInterrupt:
+                handle_parent_except(pid)
 
 
 def autoreload(func, *args, **kwargs):
@@ -107,7 +117,7 @@ def autoreload(func, *args, **kwargs):
     if os.environ.get("RUN_MAIN") == "true":
         thread = threading.Thread(target=func, args=args, kwargs=kwargs)
         thread.start()
-        check_file_changd()
+        check_file_changed()
 
     # parent process
     else:
