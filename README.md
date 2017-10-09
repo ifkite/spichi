@@ -6,7 +6,7 @@
 
 ## 搭建环境以及安装
 
-支持linux以及max系统。
+支持linux以及mac系统。
 
 依赖于`MySQL`以及`redis`, 所以需要安装他们。
 安装好后，clone 代码，并安装第三方包依赖。
@@ -23,7 +23,7 @@ pip install -r requirements.txt
 ```shell
 gunicorn -w4 your_app:app
 ```
-your_app.py 创建app, 并定义若干视图函数
+在your_app.py 创建app, 并定义若干视图函数
 
 2. python your_app.py
 your_app.py 内容类似于：
@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
 默认配置文件是 spichi/develop.json
 
-```json
+```python
 {
    "DATABASES": {   #设置数据库
    "mysql": {       #数据库配置名
