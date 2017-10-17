@@ -1,0 +1,17 @@
+{
+    "DATABASES": {
+        "mysql": {
+            "db_type": "sql",
+            "db_conf": "mysql+mysqldb://root:@localhost/spichi_test"
+        }
+    },
+    "UPLOAD_CLASS": "local",
+    "SESSION_STORE": "redis",
+    "CACHE": {
+        "redis": {
+            "host": "127.0.0.1",
+            "port": 6379,
+            "db": 0
+        }
+    }
+}

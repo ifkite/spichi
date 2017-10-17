@@ -63,11 +63,11 @@ class SQLDataHandler(BaseDataHandler):
             self.conn = self.engine.connect()
 
     def execute(self, *args, **kwargs):
-        try:
-            return self.conn.execute(*args, **kwargs)
-        except ResourceClosedError:
-            self.connect()
-            return self.conn.execute(*args, **kwargs)
+        # TODO
+        self.connect()
+        results = self.conn.execute(*args, **kwargs)
+        self.conn.close()
+        return results
 
     def __getattr__(self, name):
         '''
