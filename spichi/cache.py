@@ -14,6 +14,7 @@
 
 import redis
 from factory import GeneralFactory
+from time import time
 
 
 class BaseCache(object):
@@ -75,6 +76,40 @@ class BaseCache(object):
         return decorator
 
 
+
+class LocalCache(BaseCache):
+    _cache = {}
+
+    def config(self, *args, **kwargs):
+        pass
+
+    def get(self, cache_key):
+        _cache_key = self.make_key(cache_key)
+        cache_result = self._cache.get(_cache_key)
+        if not cache_result:
+            return cache_result
+        if cache_result and cache_result.get('expires') < time():
+            cache_result = None
+            self.delete(cache_key)
+        return cache_result.get('value')
+
+    def set(self, cache_key, cache_val, expires=None):
+        _cache_key = self.make_key(cache_key)
+        self._cache.update({
+            _cache_key: {
+                "value": cache_val,
+                "expires": time() + expires
+                }
+            })
+
+    def delete(self, cache_key):
+        _cache_key = self.make_key(cache_key)
+        try:
+            return self._cache.pop(_cache_key)
+        except KeyError:
+            return None
+
+
 class RedisCache(BaseCache):
     conf = {'host': '127.0.0.1', 'port': 6379, 'db': 0}
 
@@ -96,4 +131,4 @@ class RedisCache(BaseCache):
 
 
 CacheFactory = GeneralFactory.gen()
-CacheFactory.backend_dict = {'redis': RedisCache}
+CacheFactory.backend_dict = {'redis': RedisCache, 'local': LocalCache}
