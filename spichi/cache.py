@@ -15,6 +15,29 @@
 import redis
 from factory import GeneralFactory
 from time import time
+try:
+    import cPickle as pickle
+except:
+    import pickle
+
+
+class CacheValue(object):
+    from werkzeug.wrappers import Response as response
+    support_type = {int, basestring, dict, list, tuple, response}
+
+    @classmethod
+    def serialize(cls, data):
+        for t in cls.support_type:
+            if isinstance(data, t):
+                return pickle.dumps(data)
+
+        raise Exception
+
+
+    @classmethod
+    def unserialize(cls, data):
+        # shuold handle exception when called this func
+        return pickle.loads(data)
 
 
 class BaseCache(object):
@@ -67,14 +90,18 @@ class BaseCache(object):
             def wrapper(*args, **kwargs):
                 cache_val = self.get(key)
                 if cache_val:
-                    return cache_val
+                    return CacheValue.unserialize(cache_val)
                 result = func(*args, **kwargs)
-                if isinstance(result, basestring):
-                    self.set(key, result, expires)
+
+                try:
+                    result_serialized = CacheValue.serialize(result)
+                    self.set(key, result_serialized, expires)
+                except:
+                    pass
+
                 return result
             return wrapper
         return decorator
-
 
 
 class LocalCache(BaseCache):
