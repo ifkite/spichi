@@ -13,7 +13,8 @@
 ```shell
 git clone https://github.com/ifkite/spichi.git
 cd spichi
-pip install -r requirements.txt
+python setup.py build
+python setup.py install
 ```
 
 ## 运行
@@ -45,7 +46,7 @@ if __name__ == '__main__':
 目前包含以下内容：
 * HTTP API 框架
 * session会话存储
-* 缓存(string类型的结果)
+* 缓存(int basestring list dict tuple Response 类型的结果)
 * 支持MySQL SQLite数据库
 * 热加载
 
@@ -61,19 +62,20 @@ if __name__ == '__main__':
                     #举例：app.databases['mysql']
        "db_type": "sql", #MySQL SQLite 都填 'sql'，此时底层数据库连接使用SQLAlchemy
        "db_conf": "mysql+mysqldb://root:@localhost/spichi_test"     #填连接方式，也可参考SQLAlchemy文档
-                    # 大同小异
-                    # MySQL: mysql+mysqldb://user:password@host:port/dbname[?key=value&key=value...]
-                    # SQLite: sqlite+pysqlite:///file_path
+                    #大同小异
+                    #MySQL: mysql+mysqldb://user:password@host:port/dbname[?key=value&key=value...]
+                    #SQLite: sqlite+pysqlite:///file_path
        }
     },
    "UPLOAD_CLASS": "local",    #上传文件处理方式，只支持local，即存在本地
    "SESSION_STORE": "redis",   #session存储方式，只支持redis，即存在redis中
-   "CACHE": {                  #缓存存储方式，只支持redis，即存在redis中
+   "CACHE": {                  #缓存存储方式，支持`redis` 或 `local`的存储方式
         "redis": {             #使用cache前需要指明使用的哪种存储方式
             "host": "127.0.0.1",    #redis的host
             "port": 6379,           #redis的端口
             "db": 0                 #redis的db
-        }
+        },
+        "local": {}            #使用本地内存存储
     }
 }
 ```

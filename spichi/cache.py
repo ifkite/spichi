@@ -23,7 +23,7 @@ except:
 
 class CacheValue(object):
     from werkzeug.wrappers import Response as response
-    support_type = {int, basestring, dict, list, tuple, response}
+    support_type = (int, basestring, dict, list, tuple, response)
 
     @classmethod
     def serialize(cls, data):
@@ -87,15 +87,30 @@ class BaseCache(object):
 
     def cache(self, expires, key):
         def decorator(func):
+            def dict2str(d):
+                return ':'.join(['{0}:{1}'.format(k, str(v)) for k,v in d.iteritems()])
+
+            def make_real_key(k, kw):
+                key_second_part = dict2str(kw)
+                if key_second_part:
+                    return '{0}:{1}'.format(k, key_second_part)
+                else:
+                    return k
+
             def wrapper(*args, **kwargs):
-                cache_val = self.get(key)
+                try:
+                    real_key = make_real_key(key, kwargs)
+                except:
+                    return func(*args, **kwargs)
+
+                cache_val = self.get(real_key)
                 if cache_val:
                     return CacheValue.unserialize(cache_val)
-                result = func(*args, **kwargs)
 
+                result = func(*args, **kwargs)
                 try:
                     result_serialized = CacheValue.serialize(result)
-                    self.set(key, result_serialized, expires)
+                    self.set(real_key, result_serialized, expires)
                 except:
                     pass
 
