@@ -68,7 +68,14 @@ if __name__ == '__main__':
        }
     },
    "UPLOAD_CLASS": "local",    #上传文件处理方式，只支持local，即存在本地
-   "SESSION_STORE": "redis",   #session存储方式，只支持redis，即存在redis中
+   "SESSION_STORE": {          #session存储方式，支持 redis 和 local 两种方式
+       "name": "redis",        #name, session存储方式
+       "conf": {               #配置, 如果name配置成 local, conf 填{}即可
+           "host": "127.0.0.1",
+           "port": 6379,
+           "db": 1
+       }
+   },
    "CACHE": {                  #缓存存储方式，支持`redis` 或 `local`的存储方式
         "redis": {             #使用cache前需要指明使用的哪种存储方式
             "host": "127.0.0.1",    #redis的host

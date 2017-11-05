@@ -40,7 +40,7 @@ class Spichi(object):
                 }
 
     def set_session(self):
-        SessionHandler.set_store(self.conf['SESSION_STORE'])
+        SessionHandler.set_store(self.conf['SESSION_STORE']['name'], **self.conf['SESSION_STORE']['conf'])
 
     def set_cache(self):
         self.caches = {
